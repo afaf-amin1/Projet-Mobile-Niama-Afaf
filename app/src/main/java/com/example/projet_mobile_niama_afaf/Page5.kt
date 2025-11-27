@@ -1,0 +1,231 @@
+package com.example.projet_mobile_niama_afaf
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.projet_mobile_niama_afaf.BottomNavItem
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProductDetailsScreen() {
+    Scaffold(
+        containerColor = ScreenBackgroundColor,
+        topBar = { ProductAppBar() },
+        bottomBar = { ProductBottomBar() }
+    ) { paddingValues ->
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            item {
+                ProductImageSection()
+                ProductDescriptionSection(
+                    modifier = Modifier.padding(horizontal = 24.dp)
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+
+                AddToCartButton(
+                    onClick = { /* Logique d'ajout au panier ici */ },
+                    modifier = Modifier.padding(horizontal = 24.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProductAppBar(onBack: () -> Unit = {}, onSave: () -> Unit = {}) {
+    TopAppBar(
+        title = { /* Pas de titre visible */ },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = BarBackgroundColor),
+
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(
+                    Icons.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = SelectedItemColor
+                )
+            }
+        },
+
+        actions = {
+            IconButton(onClick = onSave) {
+                Icon(
+                    Icons.Filled.ShoppingCart,
+                    contentDescription = "Cart",
+                    tint = SelectedItemColor
+                )
+            }
+        },
+        modifier = Modifier.statusBarsPadding()
+    )
+}
+
+@Composable
+fun ProductImageSection() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+    ) {
+        Image(
+            painter = painterResource(id = IMAGE_RES_ID),
+            contentDescription = "Lady Million Perfume Bottle",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.LightGray)
+        )
+    }
+}
+
+
+@Composable
+fun ProductDescriptionSection(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.padding(top = 24.dp)) {
+
+        Text(
+            text = "Lady Million",
+            color = PrimaryTextColor,
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+
+        Text(
+            text = "Lady Million is a luxurious and seductive fragrance that embodies confidence, power, and femininity. Inspired by gold and wealth, it captures the essence of glamour and irresistible charm.",
+            color = SecondaryTextColor,
+            fontSize = 14.sp,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        Text(
+            text = "Olfactory family: Floral - Woody - Fresh",
+            color = SecondaryTextColor,
+            fontSize = 14.sp,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Text(
+            text = "Top notes: Raspberry, Neroli, Bitter Orange",
+            color = SecondaryTextColor,
+            fontSize = 14.sp,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Text(
+            text = "Heart notes: Orange Blossom, Arabian Jasmine, Gardenia",
+            color = SecondaryTextColor,
+            fontSize = 14.sp,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Text(
+            text = "Base notes: Patchouli, Honey, Amber",
+            color = SecondaryTextColor,
+            fontSize = 14.sp,
+        )
+    }
+}
+
+
+@Composable
+fun AddToCartButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = AccentButtonColor),
+        shape = RoundedCornerShape(8.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp)
+    ) {
+        Text(
+            text = "Add to Cart",
+            color = Color.White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+
+@Composable
+fun ProductBottomBar() {
+    NavigationBar(
+        containerColor = BarBackgroundColor,
+        contentColor = UnselectedItemColor,
+        tonalElevation = 4.dp,
+        modifier = Modifier.height(60.dp)
+    ) {
+
+        BottomNavItem(icon = Icons.Filled.Home, label = "Home", isSelected = true)
+        BottomNavItem(icon = Icons.Filled.Search, label = "Search")
+        BottomNavItem(icon = Icons.Filled.ShoppingCart, label = "Cart")
+        BottomNavItem(icon = Icons.Filled.Person, label = "Profile")
+    }
+}
+
+@Composable
+fun RowScope.BottomNavItem(icon: ImageVector, label: String, isSelected: Boolean = false) {
+
+    val tintColor = if (isSelected) SelectedItemColor else UnselectedItemColor
+
+    NavigationBarItem(
+        icon = { Icon(icon, contentDescription = label, tint = tintColor, modifier = Modifier.size(24.dp)) },
+        label = { null },
+        selected = isSelected,
+        onClick = { /* Gérer la navigation */ },
+        colors = NavigationBarItemDefaults.colors(
+            indicatorColor = Color.Transparent,
+            selectedIconColor = SelectedItemColor,
+            unselectedIconColor = UnselectedItemColor
+        )
+    )
+}
