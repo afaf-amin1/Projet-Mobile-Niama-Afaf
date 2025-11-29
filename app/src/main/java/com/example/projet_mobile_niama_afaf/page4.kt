@@ -30,20 +30,14 @@ import androidx.compose.ui.res.painterResource
 
 
 
-
-
-
-
-
 data class Parfum(
     val name: String,
     val price: String,
-    val imageResId: Int, // ID de ressource drawable
-    val isNew: Boolean = false // Pour 'Chanel N°5'
+    val imageResId: Int,
+    val isNew: Boolean = false
 )
 
-// --- 2. DONNÉES DE L'ÉCRAN ---
-// NOTE : J'ai gardé vos nouveaux noms de ressources (R.drawable.channel, etc.)
+
 val sampleParfums = listOf(
     Parfum("Chanel N°5", "149,90 €", R.drawable.channel, isNew = true),
     Parfum("Lancôme La Vie Est Belle", "95 €", R.drawable.vie_est_belle),
@@ -94,11 +88,7 @@ fun PerfumesScreen() {
     }
 }
 
-// ------------------------------------------
-// --- 4. COMPOSANTS DE L'ÉCRAN ---
-// ------------------------------------------
 
-// --- APP BAR DE LA PAGE PARFUMS ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PerfumesAppBar() {
@@ -123,7 +113,7 @@ fun PerfumesAppBar() {
     )
 }
 
-// --- OPTION DE TRI/FILTRE ---
+
 @Composable
 fun FilterOption(text: String) {
     Row(
@@ -140,7 +130,7 @@ fun FilterOption(text: String) {
     }
 }
 
-// --- ARTICLE DE PARFUM INDIVIDUEL ---
+
 @Composable
 fun ParfumItem(parfum: Parfum) {
     Row(
@@ -192,7 +182,7 @@ fun ParfumItem(parfum: Parfum) {
     }
 }
 
-// --- BARRE DE NAVIGATION INFÉRIEURE (BOTTOM BAR) ---
+
 @Composable
 fun CustomBottomBar() {
     NavigationBar(
@@ -202,12 +192,12 @@ fun CustomBottomBar() {
     ) {
         val items = listOf("Home", "Search", "Cart", "Profile")
         val icons = listOf(Icons.Filled.Home, Icons.Filled.Search, Icons.Filled.ShoppingCart, Icons.Filled.Person)
-        val selectedIndex = 2 // "Cart" est sélectionné sur votre image
+        val selectedIndex = 2
 
         items.forEachIndexed { index, item ->
             NavigationBarItem(
                 icon = {
-                    // *** CORRECTION ICI : Utilisation de la variable globale 'nouvelleCouleurBouton' ***
+
                     Icon(
                         icons[index],
                         contentDescription = item,
@@ -215,7 +205,7 @@ fun CustomBottomBar() {
                     )
                 },
                 label = {
-                    // *** CORRECTION ICI : Utilisation de la variable globale 'nouvelleCouleurBouton' ***
+
                     Text(
                         item,
                         fontSize = 10.sp,

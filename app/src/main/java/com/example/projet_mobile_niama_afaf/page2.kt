@@ -32,17 +32,7 @@ val couleurfin = Color(0xFF4F2C1A)
 val nouvelleCouleurBouton = Color(0xFFDD7B1A)
 
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            ProjetMobileNiamaAfafTheme {
-                LoginScreen()
-            }
-        }
-    }
-}
+
 
 
 @Composable
@@ -202,10 +192,3 @@ fun SignupLink(onClick: () -> Unit) {
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ProjetMobileNiamaAfafTheme {
-        LoginScreen()
-    }
-}

@@ -22,42 +22,41 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
-import com.example.projet_mobile_niama_afaf.ui.theme.ProjetMobileNiamaAfafTheme // Garde l'import du Thème
+import com.example.projet_mobile_niama_afaf.ui.theme.ProjetMobileNiamaAfafTheme
 import java.text.DecimalFormat
 
-// --- VARIABLES DE COULEURS (GLOBALES DANS CE FICHIER) ---
 val accentuationColor = Color(0xFFDD7B1A)
 val appBarColor = Color.Black
 val inactiveIconColor = Color.Gray
 
-// --- MODÈLE DE DONNÉES ET LOGIQUE ---
+
 
 data class CartItem(
-    val name: String, // CORRECTION: Ajout de ":"
-    val volume: String, // CORRECTION: Ajout de ":"
-    val price: Double, // CORRECTION: Ajout de ":"
-    val imageResId: Int, // CORRECTION: Ajout de ":"
+    val name: String,
+    val volume: String,
+    val price: Double,
+    val imageResId: Int,
 )
 
 val cartItems = listOf(
-    CartItem("Lady Million", "80 ml", 102.00, R.drawable.ladymillion), // CORRECTION: Ajout de "quotes"
-    CartItem("Channel N°5", "100 ml", 149.90, R.drawable.channel), // CORRECTION: Ajout de "quotes"
-    CartItem("Yves saint laurent Libre", "50 ml", 130.00, R.drawable.libre), // CORRECTION: Ajout de "quotes"
+    CartItem("Lady Million", "80 ml", 102.00, R.drawable.ladymillion),
+    CartItem("Channel N°5", "100 ml", 149.90, R.drawable.channel),
+    CartItem("Yves saint laurent Libre", "50 ml", 130.00, R.drawable.libre),
 )
 
-fun calculateSummary(items: List<CartItem>): Triple<Double, Double, Double> { // CORRECTION: Ajout de ":" et "<>"
+fun calculateSummary(items: List<CartItem>): Triple<Double, Double, Double> {
     val subtotal = items.sumOf { it.price }
     val shipping = 0.0
     val total = subtotal + shipping
     return Triple(subtotal, shipping, total)
 }
 
-fun formatPrice(price: Double): String { // CORRECTION: Ajout de ":"
-    val formatter = DecimalFormat("#,##0.00' €'") // CORRECTION: Ajout de "quotes"
+fun formatPrice(price: Double): String {
+    val formatter = DecimalFormat("#,##0.00' €'")
     return formatter.format(price)
 }
 
-// --- COMPOSABLE PRINCIPAL ---
+
 
 @Composable
 fun CartScreen() {
@@ -67,7 +66,7 @@ fun CartScreen() {
         topBar = { CartAppBar() },
         bottomBar = { CustomBottomBar(selectedIndex = 2) },
         containerColor = Color.White
-    ) { padding -> // CORRECTION: Ajout de "->" pour la lambda content
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -95,18 +94,18 @@ fun CartScreen() {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    SummaryRow(label = "Subtotal", value = formatPrice(subtotal).replace(',', ' ')) // CORRECTION: Ajout de "quotes"
-                    SummaryRow(label = "Shipping", value = if (shipping == 0.0) "Free" else formatPrice(shipping)) // CORRECTION: Ajout de "quotes"
+                    SummaryRow(label = "Subtotal", value = formatPrice(subtotal).replace(',', ' '))
+                    SummaryRow(label = "Shipping", value = if (shipping == 0.0) "Free" else formatPrice(shipping))
 
                     HorizontalDivider(color = Color.Black.copy(alpha = 0.5f), thickness = 0.5.dp, modifier = Modifier.padding(vertical = 12.dp))
 
                     SummaryRow(
-                        label = "Total", // CORRECTION: Ajout de "quotes"
+                        label = "Total",
                         value = formatPrice(total).replace(',', ' '),isBold=true, fontSize = 18.sp
                     )
                 }
             }
-            // Bouton Checkout
+
             CheckoutButton(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -116,10 +115,9 @@ fun CartScreen() {
     }
 }
 
-// --- AUTRES COMPOSABLES ---
 
 @Composable
-fun SummaryRow(label: String, value: String, isBold: Boolean = false, fontSize: TextUnit = 16.sp) { // CORRECTION: Ajout de ":"
+fun SummaryRow(label: String, value: String, isBold: Boolean = false, fontSize: TextUnit = 16.sp) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -142,16 +140,16 @@ fun SummaryRow(label: String, value: String, isBold: Boolean = false, fontSize: 
 }
 
 @Composable
-fun CheckoutButton(modifier: Modifier = Modifier) { // CORRECTION: Ajout de ":"
+fun CheckoutButton(modifier: Modifier = Modifier) {
     Button(
-        onClick = { /* Gérer le paiement */ }, // CORRECTION: Ajout de "/* */"
+        onClick = { /* Gérer le paiement */ },
         modifier = modifier.height(55.dp),
         colors = ButtonDefaults.buttonColors(containerColor = accentuationColor),
         shape = RoundedCornerShape(8.dp),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 5.dp)
     ) {
         Text(
-            "Checkout", // CORRECTION: Ajout de "quotes"
+            "Checkout",
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
             color = Color.White
@@ -160,7 +158,7 @@ fun CheckoutButton(modifier: Modifier = Modifier) { // CORRECTION: Ajout de ":"
 }
 
 @Composable
-fun CartItemRow(item: CartItem) { // CORRECTION: Ajout de ":"
+fun CartItemRow(item: CartItem) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -191,7 +189,7 @@ fun CartItemRow(item: CartItem) { // CORRECTION: Ajout de ":"
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class) // CORRECTION: Changement de syntaxe pour "@OptIn"
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartAppBar() {
     TopAppBar(
@@ -201,17 +199,17 @@ fun CartAppBar() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "Cart", // CORRECTION: Ajout de "quotes"
+                    "Cart",
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
             }
         },
         navigationIcon = {
-            IconButton(onClick = { /* Gérer le retour */ }) { // CORRECTION: Ajout de "/* */"
+            IconButton(onClick = { /* Gérer le retour */ }) {
                 Icon(
                     Icons.Filled.ArrowBack,
-                    contentDescription = "Retour", // CORRECTION: Ajout de "quotes"
+                    contentDescription = "Retour",
                     tint = Color.Black
                 )
             }
@@ -221,13 +219,13 @@ fun CartAppBar() {
 }
 
 @Composable
-fun CustomBottomBar(selectedIndex: Int) { // CORRECTION: Ajout de ":"
+fun CustomBottomBar(selectedIndex: Int) {
     NavigationBar(
         modifier = Modifier.height(60.dp),
         containerColor = Color.White,
         contentColor = inactiveIconColor
     ) {
-        val items = listOf("Home", "Search", "Cart", "Profile") // CORRECTION: Ajout de "quotes"
+        val items = listOf("Home", "Search", "Cart", "Profile")
 
         val icons = listOf(
             Icons.Filled.Home,
@@ -236,7 +234,7 @@ fun CustomBottomBar(selectedIndex: Int) { // CORRECTION: Ajout de ":"
             Icons.Filled.Person
         )
 
-        items.forEachIndexed { index, item -> // CORRECTION: Ajout de "->"
+        items.forEachIndexed { index, item ->
             NavigationBarItem(
                 icon = {
                     Icon(
@@ -246,17 +244,10 @@ fun CustomBottomBar(selectedIndex: Int) { // CORRECTION: Ajout de ":"
                     )
                 },
                 selected = index == selectedIndex,
-                onClick = { /* Naviguer vers l'écran */ }, // CORRECTION: Ajout de "/* */"
+                onClick = { /* Naviguer vers l'écran */ },
                 colors = NavigationBarItemDefaults.colors(indicatorColor = Color.Transparent)
             )
         }
     }
 }
 
-@Preview
-@Composable
-fun NomDeMaFonctionPreview() {
-    ProjetMobileNiamaAfafTheme {
-        CartScreen()
-    }
-}
