@@ -24,13 +24,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.projet_mobile_niama_afaf.ui.theme.AccentButtonColor
 
 @Composable
-fun PageWelcome() {
+fun PageWelcome(onGetStarted: () -> Unit) {
     val couleurdebut = Color(0xFFE7A070)
     val couleurfin = Color(0xFF3E2723)
     val textColor = Color(0xFFF3EAD3)
-    val buttonBackgroundColor = Color(0xFFDD7B1A)
 
     Box(
         modifier = Modifier
@@ -67,8 +67,8 @@ fun PageWelcome() {
 
             Box(modifier = Modifier.weight(1f))
             Button(
-                onClick = {  },//navigation
-                colors = ButtonDefaults.buttonColors(containerColor = buttonBackgroundColor),
+                onClick = onGetStarted,
+                colors = ButtonDefaults.buttonColors(containerColor = AccentButtonColor),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .padding(bottom = 32.dp)

@@ -1,5 +1,6 @@
 package com.example.projet_mobile_niama_afaf
 
+import com.example.projet_mobile_niama_afaf.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -15,7 +16,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -33,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -42,15 +44,30 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.projet_mobile_niama_afaf.BottomNavItem
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.projet_mobile_niama_afaf.navigation.Screen
+import com.example.projet_mobile_niama_afaf.ui.theme.AccentButtonColor
+import com.example.projet_mobile_niama_afaf.ui.theme.BarBackgroundColor
+import com.example.projet_mobile_niama_afaf.ui.theme.PrimaryTextColor
+import com.example.projet_mobile_niama_afaf.ui.theme.ScreenBackgroundColor
+import com.example.projet_mobile_niama_afaf.ui.theme.SecondaryTextColor
+import com.example.projet_mobile_niama_afaf.ui.theme.SelectedItemColor
+import com.example.projet_mobile_niama_afaf.ui.theme.UnselectedItemColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductDetailsScreen() {
+fun ProductDetailsScreen(navController: NavController) {
+    val screenBackgroundColor = ScreenBackgroundColor
     Scaffold(
-        containerColor = ScreenBackgroundColor,
-        topBar = { ProductAppBar() },
-        bottomBar = { ProductBottomBar() }
+        containerColor = screenBackgroundColor,
+        topBar = {
+            ProductAppBar(
+                onBack = { navController.popBackStack() },
+                onSave = { navController.navigate(Screen.Cart.route) }
+            )
+        },
+        bottomBar = { ProductBottomBar(navController = navController) }
     ) { paddingValues ->
 
         LazyColumn(
@@ -66,7 +83,7 @@ fun ProductDetailsScreen() {
                 Spacer(modifier = Modifier.height(32.dp))
 
                 AddToCartButton(
-                    onClick = { /* Logique d'ajout au panier ici */ },
+                    onClick = { navController.navigate(Screen.Cart.route) },
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -79,15 +96,16 @@ fun ProductDetailsScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductAppBar(onBack: () -> Unit = {}, onSave: () -> Unit = {}) {
+fun ProductAppBar(onBack: () -> Unit, onSave: () -> Unit) {
     TopAppBar(
         title = { /* Pas de titre visible */ },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = BarBackgroundColor),
 
         navigationIcon = {
             IconButton(onClick = onBack) {
+
                 Icon(
-                    Icons.Filled.ArrowBack,
+                    Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     tint = SelectedItemColor
                 )
@@ -116,7 +134,7 @@ fun ProductImageSection() {
             .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
     ) {
         Image(
-            painter = painterResource(id = IMAGE_RES_ID),
+            painter = painterResource(id = R.drawable.ladymillion),
             contentDescription = "Lady Million Perfume Bottle",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -195,25 +213,56 @@ fun AddToCartButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 
+data class BottomNavItemData(
+    val label: String,
+    val icon: ImageVector,
+    val route: String
+)
 
 @Composable
-fun ProductBottomBar() {
+fun ProductBottomBar(navController: NavController) {
+    val items = listOf(
+        BottomNavItemData("Home", Icons.Default.Home, Screen.Welcome.route), // MODIFIÉ ICI
+        BottomNavItemData("Search", Icons.Default.Search, Screen.Search.route),
+        BottomNavItemData("Cart", Icons.Default.ShoppingCart, Screen.Cart.route),
+        BottomNavItemData("Profile", Icons.Default.Person, Screen.Profile.route)
+    )
+
+    val backStackEntry by navController.currentBackStackEntryAsState()
+
     NavigationBar(
         containerColor = BarBackgroundColor,
         contentColor = UnselectedItemColor,
         tonalElevation = 4.dp,
         modifier = Modifier.height(60.dp)
     ) {
-
-        BottomNavItem(icon = Icons.Filled.Home, label = "Home", isSelected = true)
-        BottomNavItem(icon = Icons.Filled.Search, label = "Search")
-        BottomNavItem(icon = Icons.Filled.ShoppingCart, label = "Cart")
-        BottomNavItem(icon = Icons.Filled.Person, label = "Profile")
+        items.forEach { item ->
+            val isSelected = item.route == backStackEntry?.destination?.route
+            BottomNavItem(
+                icon = item.icon,
+                label = item.label,
+                isSelected = isSelected,
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
     }
 }
 
 @Composable
-fun RowScope.BottomNavItem(icon: ImageVector, label: String, isSelected: Boolean = false) {
+fun RowScope.BottomNavItem(
+    icon: ImageVector,
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
 
     val tintColor = if (isSelected) SelectedItemColor else UnselectedItemColor
 
@@ -221,7 +270,7 @@ fun RowScope.BottomNavItem(icon: ImageVector, label: String, isSelected: Boolean
         icon = { Icon(icon, contentDescription = label, tint = tintColor, modifier = Modifier.size(24.dp)) },
         label = { null },
         selected = isSelected,
-        onClick = { /* Gérer la navigation */ },
+        onClick = onClick,
         colors = NavigationBarItemDefaults.colors(
             indicatorColor = Color.Transparent,
             selectedIconColor = SelectedItemColor,

@@ -1,17 +1,13 @@
 package com.example.projet_mobile_niama_afaf
 
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,33 +16,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.projet_mobile_niama_afaf.ui.theme.ProjetMobileNiamaAfafTheme
-
-
+import com.example.projet_mobile_niama_afaf.ui.theme.AccentButtonColor
 
 val couleurdebut = Color(0xFFE7A070)
 val couleurfin = Color(0xFF4F2C1A)
-val nouvelleCouleurBouton = Color(0xFFDD7B1A)
-
-
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            ProjetMobileNiamaAfafTheme {
-                LoginScreen()
-            }
-        }
-    }
-}
-
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(onLogin: () -> Unit, onSignUp: () -> Unit, onBack: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -63,7 +41,7 @@ fun LoginScreen() {
     ) {
 
         Scaffold(
-            topBar = { LoginAppBar() },
+            topBar = { LoginAppBar(onBack = onBack) },
             containerColor = Color.Transparent,
             modifier = Modifier.fillMaxSize()
         ) { padding ->
@@ -97,9 +75,8 @@ fun LoginScreen() {
 
 
                 Button(
-                    onClick = { /* Logique de connexion ici */ },
-
-                    colors = ButtonDefaults.buttonColors(containerColor = nouvelleCouleurBouton),
+                    onClick = onLogin,
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentButtonColor),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -116,7 +93,7 @@ fun LoginScreen() {
                 Spacer(modifier = Modifier.weight(1f))
 
 
-                SignupLink(onClick = { /* Logique d'inscription ici */ })
+                SignupLink(onClick = onSignUp)
 
                 Spacer(modifier = Modifier.height(32.dp))
             }
@@ -127,7 +104,7 @@ fun LoginScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginAppBar() {
+fun LoginAppBar(onBack: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -139,9 +116,9 @@ fun LoginAppBar() {
 
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         navigationIcon = {
-            IconButton(onClick = { /* Gérer le retour */ }) {
+            IconButton(onClick = onBack) {
                 Icon(
-                    Icons.Filled.ArrowBack,
+                    Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Retour",
                     tint = Color.White
                 )
@@ -188,7 +165,7 @@ fun SignupLink(onClick: () -> Unit) {
         val linkColor = Color.White.copy(alpha = 0.8f)
 
         Text(
-            "Don't have an account? ",
+            "Don\'t have an account? ",
             color = linkColor,
             fontSize = 14.sp
         )
@@ -198,14 +175,5 @@ fun SignupLink(onClick: () -> Unit) {
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp
         )
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ProjetMobileNiamaAfafTheme {
-        LoginScreen()
     }
 }

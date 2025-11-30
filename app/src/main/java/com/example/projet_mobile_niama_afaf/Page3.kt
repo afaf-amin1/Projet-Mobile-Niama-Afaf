@@ -40,17 +40,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.projet_mobile_niama_afaf.ui.theme.AccentButtonColor
 
-val couleurdebut = Color(0xFFE7A070)
-val couleurfin = Color(0xFF3E2723)
-val buttonBackgroundColor = Color(0xFFDD7B1A)
+val couleurdebut1 = Color(0xFFE7A070)
+val couleurfin1 = Color(0xFF3E2723)
+
 @Composable
-fun SignUpScreen() {
+fun SignUpScreen(onSignUp: () -> Unit, onSignIn: () -> Unit, onClose: () -> Unit) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val gradientBrush = Brush.verticalGradient(
-        colors = listOf(couleurdebut, couleurfin)
+        colors = listOf(couleurdebut1, couleurfin1)
     )
     Box(
         modifier = Modifier
@@ -58,7 +59,7 @@ fun SignUpScreen() {
             .background(brush = gradientBrush)
     ) {
         Scaffold(
-            topBar = { SignUpAppBar() },
+            topBar = { SignUpAppBar(onClose = onClose) },
             containerColor = Color.Transparent,
             modifier = Modifier.fillMaxSize()
         ) { padding ->
@@ -95,8 +96,8 @@ fun SignUpScreen() {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
-                    onClick = { /* Logique d'inscription ici */ },
-                    colors = ButtonDefaults.buttonColors(containerColor = buttonBackgroundColor),
+                    onClick = onSignUp,
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentButtonColor),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -110,7 +111,7 @@ fun SignUpScreen() {
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                SignInLink(onClick = { /* Logique pour aller à l'écran de connexion */ })
+                SignInLink(onClick = onSignIn)
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
@@ -120,7 +121,7 @@ fun SignUpScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpAppBar() {
+fun SignUpAppBar(onClose: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -131,7 +132,7 @@ fun SignUpAppBar() {
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         navigationIcon = {
-            IconButton(onClick = { /* Gérer la fermeture/retour */ }) {
+            IconButton(onClick = onClose) {
                 Icon(
                     Icons.Filled.Close,
                     contentDescription = "Fermer",

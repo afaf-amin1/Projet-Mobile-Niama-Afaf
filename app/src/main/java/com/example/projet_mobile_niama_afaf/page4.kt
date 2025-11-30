@@ -11,7 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
@@ -22,28 +22,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
-
-
-
-
-
-
-
+import androidx.navigation.NavController
+import com.example.projet_mobile_niama_afaf.navigation.Screen
+import com.example.projet_mobile_niama_afaf.ui.theme.SelectedItemColor
 
 
 data class Parfum(
     val name: String,
     val price: String,
-    val imageResId: Int, // ID de ressource drawable
-    val isNew: Boolean = false // Pour 'Chanel N°5'
+    val imageResId: Int,
+    val isNew: Boolean = false
 )
 
-// --- 2. DONNÉES DE L'ÉCRAN ---
-// NOTE : J'ai gardé vos nouveaux noms de ressources (R.drawable.channel, etc.)
+
 val sampleParfums = listOf(
     Parfum("Chanel N°5", "149,90 €", R.drawable.channel, isNew = true),
     Parfum("Lancôme La Vie Est Belle", "95 €", R.drawable.vie_est_belle),
@@ -55,10 +49,10 @@ val sampleParfums = listOf(
 
 
 @Composable
-fun PerfumesScreen() {
+fun PerfumesScreen(navController: NavController) {
     Scaffold(
-        topBar = { PerfumesAppBar() },
-        bottomBar = { CustomBottomBar() },
+        topBar = { PerfumesAppBar(onBack = { navController.popBackStack() }) },
+        bottomBar = { CustomBottomBar(navController = navController) },
         containerColor = Color.White
     ) { padding ->
         Column(
@@ -79,14 +73,13 @@ fun PerfumesScreen() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Liste Défilante des Parfums
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(sampleParfums) { parfum ->
-                    ParfumItem(parfum = parfum)
+                    ParfumItem(parfum = parfum, onClick = { navController.navigate(Screen.ProductDetails.route) })
                     Divider(color = Color.LightGray.copy(alpha = 0.5f), thickness = 0.5.dp, modifier = Modifier.padding(vertical = 10.dp))
                 }
             }
@@ -94,14 +87,10 @@ fun PerfumesScreen() {
     }
 }
 
-// ------------------------------------------
-// --- 4. COMPOSANTS DE L'ÉCRAN ---
-// ------------------------------------------
 
-// --- APP BAR DE LA PAGE PARFUMS ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PerfumesAppBar() {
+fun PerfumesAppBar(onBack: () -> Unit) {
     TopAppBar(
         title = {
             Text(
@@ -111,9 +100,9 @@ fun PerfumesAppBar() {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { /* Gérer le retour */ }) {
+            IconButton(onClick = onBack) {
                 Icon(
-                    Icons.Filled.ArrowBack,
+                    Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Retour",
                     tint = Color.White
                 )
@@ -123,7 +112,7 @@ fun PerfumesAppBar() {
     )
 }
 
-// --- OPTION DE TRI/FILTRE ---
+
 @Composable
 fun FilterOption(text: String) {
     Row(
@@ -140,13 +129,14 @@ fun FilterOption(text: String) {
     }
 }
 
-// --- ARTICLE DE PARFUM INDIVIDUEL ---
+
 @Composable
-fun ParfumItem(parfum: Parfum) {
+fun ParfumItem(parfum: Parfum, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min),
+            .height(IntrinsicSize.Min)
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.Top
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -192,42 +182,46 @@ fun ParfumItem(parfum: Parfum) {
     }
 }
 
-// --- BARRE DE NAVIGATION INFÉRIEURE (BOTTOM BAR) ---
+
 @Composable
-fun CustomBottomBar() {
+fun CustomBottomBar(navController: NavController) {
     NavigationBar(
         modifier = Modifier.height(60.dp),
         containerColor = Color.White,
         contentColor = Color.Gray
     ) {
-        val items = listOf("Home", "Search", "Cart", "Profile")
-        val icons = listOf(Icons.Filled.Home, Icons.Filled.Search, Icons.Filled.ShoppingCart, Icons.Filled.Person)
-        val selectedIndex = 2 // "Cart" est sélectionné sur votre image
+        val items = mapOf(
+            Screen.Welcome.route to Icons.Filled.Home,
+            Screen.Search.route to Icons.Filled.Search,
+            Screen.Cart.route to Icons.Filled.ShoppingCart,
+            Screen.Profile.route to Icons.Filled.Person
+        )
 
-        items.forEachIndexed { index, item ->
+        items.forEach { (route, icon) ->
             NavigationBarItem(
                 icon = {
-                    // *** CORRECTION ICI : Utilisation de la variable globale 'nouvelleCouleurBouton' ***
                     Icon(
-                        icons[index],
-                        contentDescription = item,
-                        tint = if (index == selectedIndex) nouvelleCouleurBouton else Color.Gray
+                        icon,
+                        contentDescription = route,
+                        tint = if (navController.currentDestination?.route == route) SelectedItemColor else Color.Gray
                     )
                 },
                 label = {
-                    // *** CORRECTION ICI : Utilisation de la variable globale 'nouvelleCouleurBouton' ***
                     Text(
-                        item,
+                        route.replace("_screen", "").replaceFirstChar { it.uppercase() },
                         fontSize = 10.sp,
-                        color = if (index == selectedIndex) nouvelleCouleurBouton else Color.Gray
+                        color = if (navController.currentDestination?.route == route) SelectedItemColor else Color.Gray
                     )
                 },
-                selected = index == selectedIndex,
-                onClick = { /* Naviguer vers l'écran */ },
+                selected = navController.currentDestination?.route == route,
+                onClick = { 
+                    navController.navigate(route) {
+                        popUpTo(navController.graph.startDestinationId)
+                        launchSingleTop = true
+                    }
+                },
                 colors = NavigationBarItemDefaults.colors(indicatorColor = Color.Transparent)
             )
         }
     }
 }
-
-

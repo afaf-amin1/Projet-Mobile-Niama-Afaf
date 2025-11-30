@@ -9,3 +9,14 @@ val Pink80 = Color(0xFFEFB8C8)
 val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
+
+// App-specific colors
+val ScreenBackgroundColor = Color(0xFFFFFFFF)
+val BarBackgroundColor = Color(0xFFFFFFFF)
+val PrimaryTextColor = Color(0xFF000000)
+val SecondaryTextColor = Color(0xFF444444)
+val UnselectedItemColor = Color(0xFF888888)
+
+// Accent and Navigation Colors
+val AccentButtonColor = Color(0xFFDD7B1A) // VOTRE COULEUR
+val SelectedItemColor = Color(0xFFDD7B1A) // VOTRE COULEUR
