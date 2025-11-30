@@ -246,7 +246,7 @@ fun CustomBottomBar(navController: NavController, selectedIndex: Int) {
                     )
                 },
                 selected = index == selectedIndex,
-                onClick = { 
+                onClick = {
                     navController.navigate(route) {
                         popUpTo(navController.graph.startDestinationId)
                         launchSingleTop = true
@@ -258,4 +258,3 @@ fun CustomBottomBar(navController: NavController, selectedIndex: Int) {
         }
     }
 }
-
