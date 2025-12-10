@@ -5,12 +5,12 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.projet_mobile_niama_afaf.CartScreen
 import com.example.projet_mobile_niama_afaf.LoginScreen
 import com.example.projet_mobile_niama_afaf.PageWelcome
 import com.example.projet_mobile_niama_afaf.PerfumesScreen
 import com.example.projet_mobile_niama_afaf.ProductDetailsScreen
 import com.example.projet_mobile_niama_afaf.SignUpScreen
+import com.example.projet_mobile_niama_afaf.screens.CartScreen
 
 @Composable
 fun AppNavigation() {
@@ -41,7 +41,7 @@ fun AppNavigation() {
             ProductDetailsScreen(navController = navController)
         }
         composable(Screen.Cart.route) {
-            CartScreen(navController = navController)
+            CartScreen()
         }
         composable(Screen.Search.route) {
             Text("Search Screen")

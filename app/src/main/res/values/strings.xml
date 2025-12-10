@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Projet-Mobile-Niama-Afaf</string>
+    <string name="add_dummy_product">Add Dummy Product</string>
+    <string name="cart_is_empty">Your cart is empty.</string>
 </resources>
