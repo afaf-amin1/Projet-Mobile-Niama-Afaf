@@ -44,7 +44,6 @@ class ViewModelFactory(private val repository: AppRepository) : ViewModelProvide
             @Suppress("UNCHECKED_CAST")
             return CartViewModel(repository) as T
         }
-        // Add other ViewModels here
-        throw IllegalArgumentException("Unknown ViewModel class")
+        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }
