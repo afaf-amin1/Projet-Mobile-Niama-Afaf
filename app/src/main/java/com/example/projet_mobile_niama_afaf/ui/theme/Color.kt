@@ -20,3 +20,4 @@ val UnselectedItemColor = Color(0xFF888888)
 // Accent and Navigation Colors
 val AccentButtonColor = Color(0xFFDD7B1A) // VOTRE COULEUR
 val SelectedItemColor = Color(0xFFDD7B1A) // VOTRE COULEUR
+val appBarColor = Color(0xFFDD7B1A) // VOTRE COULEUR

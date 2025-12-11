@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -23,11 +24,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.projet_mobile_niama_afaf.data.CartRepository
 import com.example.projet_mobile_niama_afaf.data.Product
 import com.example.projet_mobile_niama_afaf.navigation.Screen
 import com.example.projet_mobile_niama_afaf.ui.theme.BarBackgroundColor
 import com.example.projet_mobile_niama_afaf.ui.theme.PrimaryTextColor
 import com.example.projet_mobile_niama_afaf.ui.theme.ScreenBackgroundColor
+import com.example.projet_mobile_niama_afaf.utils.NotificationHelper
 import com.example.projet_mobile_niama_afaf.viewmodel.ProductViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,9 +69,15 @@ fun PerfumesScreen(navController: NavController, productViewModel: ProductViewMo
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(products) { product ->
-                    ProductItem(product = product, onProductClick = {
-                        navController.navigate(Screen.ProductDetails.route + "/${product.id}")
-                    })
+                    ProductItem(
+                        product = product,
+                        onProductClick = {
+                            navController.navigate(Screen.ProductDetails.route + "/${product.id}")
+                        },
+                        onAddToCartClick = {
+                            navController.navigate(Screen.ProductDetails.route + "/${product.id}")
+                        }
+                    )
                 }
             }
         }
@@ -76,40 +85,47 @@ fun PerfumesScreen(navController: NavController, productViewModel: ProductViewMo
 }
 
 @Composable
-fun ProductItem(product: Product, onProductClick: () -> Unit) {
+fun ProductItem(product: Product, onProductClick: () -> Unit, onAddToCartClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onProductClick),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Column(
-            modifier = Modifier.padding(8.dp)
-        ) {
+        Column {
             Image(
                 painter = rememberAsyncImagePainter(product.image),
                 contentDescription = product.title,
                 modifier = Modifier
                     .height(120.dp)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp)),
+                    .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                    .clickable(onClick = onProductClick),
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = product.title,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = "${product.price} €",
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text(
+                    text = product.title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "${product.price} €",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = onAddToCartClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text("Add to Cart", fontSize = 12.sp)
+                }
+            }
         }
     }
 }

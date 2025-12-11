@@ -37,12 +37,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,12 +62,18 @@ import com.example.projet_mobile_niama_afaf.ui.theme.ScreenBackgroundColor
 import com.example.projet_mobile_niama_afaf.ui.theme.SecondaryTextColor
 import com.example.projet_mobile_niama_afaf.ui.theme.SelectedItemColor
 import com.example.projet_mobile_niama_afaf.ui.theme.UnselectedItemColor
+import com.example.projet_mobile_niama_afaf.utils.NotificationHelper
 import com.example.projet_mobile_niama_afaf.viewmodel.ProductViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailsScreen(navController: NavController, productId: Int, productViewModel: ProductViewModel = viewModel()) {
     val product by productViewModel.productDetails.collectAsState()
+    val context = LocalContext.current
+    val notificationHelper = NotificationHelper(context)
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(productId) {
         productViewModel.getProductById(productId)
@@ -98,8 +106,12 @@ fun ProductDetailsScreen(navController: NavController, productId: Int, productVi
 
                     AddToCartButton(
                         onClick = {
-                            CartRepository.addToCart(it)
-                            navController.navigate(Screen.Cart.route)
+                            scope.launch {
+                                CartRepository.addToCart(it)
+                                notificationHelper.showProductAddedNotification(it.title)
+                                delay(500)
+                                navController.navigate(Screen.Cart.route)
+                            }
                          },
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
