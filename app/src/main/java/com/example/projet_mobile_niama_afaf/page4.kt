@@ -24,32 +24,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import com.example.projet_mobile_niama_afaf.data.Product
 import com.example.projet_mobile_niama_afaf.navigation.Screen
 import com.example.projet_mobile_niama_afaf.ui.theme.SelectedItemColor
-
-
-data class Parfum(
-    val name: String,
-    val price: String,
-    val imageResId: Int,
-    val isNew: Boolean = false
-)
-
-
-val sampleParfums = listOf(
-    Parfum("Chanel N°5", "149,90 €", R.drawable.channel, isNew = true),
-    Parfum("Lancôme La Vie Est Belle", "95 €", R.drawable.vie_est_belle),
-    Parfum("Yves Saint Laurent Libre", "130 €", R.drawable.libre),
-    Parfum("Miss Dior", "82,95 €", R.drawable.missdior),
-    Parfum("Lady Million", "102,00 €", R.drawable.ladymillion)
-)
-
+import com.example.projet_mobile_niama_afaf.viewmodel.ProductViewModel
 
 
 @Composable
-fun PerfumesScreen(navController: NavController) {
+fun PerfumesScreen(navController: NavController, productViewModel: ProductViewModel = viewModel()) {
+    val products by productViewModel.products.collectAsState()
+
+    LaunchedEffect(Unit) {
+        productViewModel.getProducts()
+    }
+
     Scaffold(
         topBar = { PerfumesAppBar(onBack = { navController.popBackStack() }) },
         bottomBar = { CustomBottomBar(navController = navController) },
@@ -78,8 +69,8 @@ fun PerfumesScreen(navController: NavController) {
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(sampleParfums) { parfum ->
-                    ParfumItem(parfum = parfum, onClick = { navController.navigate(Screen.ProductDetails.route) })
+                items(products) { product ->
+                    ParfumItem(product = product, onClick = { navController.navigate("${Screen.ProductDetails.route}/${product.id}") })
                     Divider(color = Color.LightGray.copy(alpha = 0.5f), thickness = 0.5.dp, modifier = Modifier.padding(vertical = 10.dp))
                 }
             }
@@ -131,7 +122,7 @@ fun FilterOption(text: String) {
 
 
 @Composable
-fun ParfumItem(parfum: Parfum, onClick: () -> Unit) {
+fun ParfumItem(product: Product, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -140,19 +131,9 @@ fun ParfumItem(parfum: Parfum, onClick: () -> Unit) {
         verticalAlignment = Alignment.Top
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            if (parfum.isNew) {
-                Text(
-                    "New",
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 12.sp,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-            }
-
-            Text(parfum.name, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = Color.Black)
+            Text(product.title, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = Color.Black)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(parfum.price, fontSize = 14.sp, color = Color.Black.copy(alpha = 0.9f))
+            Text("${product.price} €", fontSize = 14.sp, color = Color.Black.copy(alpha = 0.9f))
             Spacer(modifier = Modifier.height(10.dp))
 
             Button(
@@ -172,8 +153,8 @@ fun ParfumItem(parfum: Parfum, onClick: () -> Unit) {
         }
 
         Image(
-            painter = painterResource(id = parfum.imageResId),
-            contentDescription = parfum.name,
+            painter = rememberAsyncImagePainter(product.image),
+            contentDescription = product.title,
             modifier = Modifier
                 .width(100.dp)
                 .fillMaxHeight()

@@ -10,47 +10,30 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.TextUnit
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import com.example.projet_mobile_niama_afaf.data.Product
 import com.example.projet_mobile_niama_afaf.navigation.Screen
 import com.example.projet_mobile_niama_afaf.ui.theme.AccentButtonColor
 import com.example.projet_mobile_niama_afaf.ui.theme.SelectedItemColor
+import com.example.projet_mobile_niama_afaf.viewmodel.CartViewModel
 import java.text.DecimalFormat
-
 
 val appBarColor = Color.Black
 val inactiveIconColor = Color.Gray
-
-data class CartItem(
-    val name: String,
-    val volume: String,
-    val price: Double,
-    val imageResId: Int,
-)
-
-val cartItems = listOf(
-    CartItem("Lady Million", "80 ml", 102.00, R.drawable.ladymillion),
-    CartItem("Chanel N°5", "100 ml", 149.90, R.drawable.channel),
-    CartItem("Yves saint laurent Libre", "50 ml", 130.00, R.drawable.libre),
-)
-
-fun calculateSummary(items: List<CartItem>): Triple<Double, Double, Double> {
-    val subtotal = items.sumOf { it.price }
-    val shipping = 0.0
-    val total = subtotal + shipping
-    return Triple(subtotal, shipping, total)
-}
 
 fun formatPrice(price: Double): String {
     val formatter = DecimalFormat("#,##0.00' €'")
@@ -58,8 +41,9 @@ fun formatPrice(price: Double): String {
 }
 
 @Composable
-fun CartScreen(navController: NavController) {
-    val (subtotal, shipping, total) = calculateSummary(cartItems)
+fun CartScreen(navController: NavController, cartViewModel: CartViewModel = viewModel()) {
+    val cartItems by cartViewModel.cartItems.collectAsState()
+    val total = cartViewModel.getCartTotal()
 
     Scaffold(
         topBar = { CartAppBar(onBack = { navController.popBackStack() }) },
@@ -71,45 +55,51 @@ fun CartScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(cartItems) { item ->
-                    CartItemRow(item = item)
-                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f), thickness = 0.5.dp, modifier = Modifier.padding(vertical = 10.dp))
+            if (cartItems.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Your cart is empty", fontSize = 20.sp)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(cartItems) { item ->
+                        CartItemRow(item = item)
+                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f), thickness = 0.5.dp, modifier = Modifier.padding(vertical = 10.dp))
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            "Summary",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        SummaryRow(label = "Subtotal", value = formatPrice(total).replace(',', ' '))
+                        SummaryRow(label = "Shipping", value = "Free")
+
+                        HorizontalDivider(color = Color.Black.copy(alpha = 0.5f), thickness = 0.5.dp, modifier = Modifier.padding(vertical = 12.dp))
+
+                        SummaryRow(
+                            label = "Total",
+                            value = formatPrice(total).replace(',', ' '), isBold = true, fontSize = 18.sp
+                        )
+                    }
                 }
 
-                item {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        "Summary",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    SummaryRow(label = "Subtotal", value = formatPrice(subtotal).replace(',', ' '))
-                    SummaryRow(label = "Shipping", value = if (shipping == 0.0) "Free" else formatPrice(shipping))
-
-                    HorizontalDivider(color = Color.Black.copy(alpha = 0.5f), thickness = 0.5.dp, modifier = Modifier.padding(vertical = 12.dp))
-
-                    SummaryRow(
-                        label = "Total",
-                        value = formatPrice(total).replace(',', ' '),isBold=true, fontSize = 18.sp
-                    )
-                }
+                CheckoutButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                )
             }
-
-            CheckoutButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
         }
     }
 }
@@ -158,7 +148,7 @@ fun CheckoutButton(modifier: Modifier = Modifier) {
 
 
 @Composable
-fun CartItemRow(item: CartItem) {
+fun CartItemRow(item: Product) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -166,8 +156,8 @@ fun CartItemRow(item: CartItem) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
-                painter = painterResource(id = item.imageResId),
-                contentDescription = item.name,
+                painter = rememberAsyncImagePainter(item.image),
+                contentDescription = item.title,
                 modifier = Modifier
                     .size(60.dp)
                     .padding(end = 10.dp)
@@ -176,8 +166,8 @@ fun CartItemRow(item: CartItem) {
             Column(
                 modifier = Modifier.width(IntrinsicSize.Max)
             ) {
-                Text(item.name, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = Color.Black)
-                Text(item.volume, fontSize = 14.sp, color = Color.Gray)
+                Text(item.title, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = Color.Black)
+                Text(item.category, fontSize = 14.sp, color = Color.Gray)
             }
         }
         Text(

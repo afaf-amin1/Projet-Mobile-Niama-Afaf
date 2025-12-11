@@ -1,6 +1,5 @@
 package com.example.projet_mobile_niama_afaf
 
-import com.example.projet_mobile_niama_afaf.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,6 +22,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,18 +34,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import coil.compose.rememberAsyncImagePainter
+import com.example.projet_mobile_niama_afaf.data.CartRepository
+import com.example.projet_mobile_niama_afaf.data.Product
 import com.example.projet_mobile_niama_afaf.navigation.Screen
 import com.example.projet_mobile_niama_afaf.ui.theme.AccentButtonColor
 import com.example.projet_mobile_niama_afaf.ui.theme.BarBackgroundColor
@@ -54,10 +60,17 @@ import com.example.projet_mobile_niama_afaf.ui.theme.ScreenBackgroundColor
 import com.example.projet_mobile_niama_afaf.ui.theme.SecondaryTextColor
 import com.example.projet_mobile_niama_afaf.ui.theme.SelectedItemColor
 import com.example.projet_mobile_niama_afaf.ui.theme.UnselectedItemColor
+import com.example.projet_mobile_niama_afaf.viewmodel.ProductViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductDetailsScreen(navController: NavController) {
+fun ProductDetailsScreen(navController: NavController, productId: Int, productViewModel: ProductViewModel = viewModel()) {
+    val product by productViewModel.productDetails.collectAsState()
+
+    LaunchedEffect(productId) {
+        productViewModel.getProductById(productId)
+    }
+
     val screenBackgroundColor = ScreenBackgroundColor
     Scaffold(
         containerColor = screenBackgroundColor,
@@ -69,24 +82,33 @@ fun ProductDetailsScreen(navController: NavController) {
         },
         bottomBar = { ProductBottomBar(navController = navController) }
     ) { paddingValues ->
+        product?.let {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                item {
+                    ProductImageSection(it.image)
+                    ProductDescriptionSection(
+                        product = it,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            item {
-                ProductImageSection()
-                ProductDescriptionSection(
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-
-                AddToCartButton(
-                    onClick = { navController.navigate(Screen.Cart.route) },
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+                    AddToCartButton(
+                        onClick = {
+                            CartRepository.addToCart(it)
+                            navController.navigate(Screen.Cart.route)
+                         },
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+        } ?: run {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
             }
         }
     }
@@ -126,7 +148,7 @@ fun ProductAppBar(onBack: () -> Unit, onSave: () -> Unit) {
 }
 
 @Composable
-fun ProductImageSection() {
+fun ProductImageSection(imageUrl: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -134,8 +156,8 @@ fun ProductImageSection() {
             .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ladymillion),
-            contentDescription = "Lady Million Perfume Bottle",
+            painter = rememberAsyncImagePainter(imageUrl),
+            contentDescription = "Product Image",
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()
@@ -146,11 +168,11 @@ fun ProductImageSection() {
 
 
 @Composable
-fun ProductDescriptionSection(modifier: Modifier = Modifier) {
+fun ProductDescriptionSection(product: Product, modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(top = 24.dp)) {
 
         Text(
-            text = "Lady Million",
+            text = product.title,
             color = PrimaryTextColor,
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
@@ -158,37 +180,24 @@ fun ProductDescriptionSection(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = "Lady Million is a luxurious and seductive fragrance that embodies confidence, power, and femininity. Inspired by gold and wealth, it captures the essence of glamour and irresistible charm.",
+            text = product.description,
             color = SecondaryTextColor,
             fontSize = 14.sp,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
         Text(
-            text = "Olfactory family: Floral - Woody - Fresh",
+            text = "Category: ${product.category}",
             color = SecondaryTextColor,
             fontSize = 14.sp,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
         Text(
-            text = "Top notes: Raspberry, Neroli, Bitter Orange",
-            color = SecondaryTextColor,
-            fontSize = 14.sp,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Text(
-            text = "Heart notes: Orange Blossom, Arabian Jasmine, Gardenia",
-            color = SecondaryTextColor,
-            fontSize = 14.sp,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Text(
-            text = "Base notes: Patchouli, Honey, Amber",
-            color = SecondaryTextColor,
-            fontSize = 14.sp,
+            text = "Price: ${product.price} €",
+            color = PrimaryTextColor,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
         )
     }
 }
@@ -222,7 +231,7 @@ data class BottomNavItemData(
 @Composable
 fun ProductBottomBar(navController: NavController) {
     val items = listOf(
-        BottomNavItemData("Home", Icons.Default.Home, Screen.Welcome.route), // MODIFIÉ ICI
+        BottomNavItemData("Home", Icons.Default.Home, Screen.Welcome.route),
         BottomNavItemData("Search", Icons.Default.Search, Screen.Search.route),
         BottomNavItemData("Cart", Icons.Default.ShoppingCart, Screen.Cart.route),
         BottomNavItemData("Profile", Icons.Default.Person, Screen.Profile.route)
