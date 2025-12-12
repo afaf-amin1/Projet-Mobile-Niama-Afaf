@@ -13,11 +13,11 @@ class AppRepository(
     fun getUser(email: String): Flow<User?> = userDao.getUser(email)
 
     // Cart methods
-    val cartItems: Flow<List<ProductCart>> = productCartDao.getAll()
+    fun getCartForUser(userEmail: String): Flow<List<ProductCart>> = productCartDao.getCartForUser(userEmail)
     suspend fun addToCart(product: ProductCart) = productCartDao.insert(product)
     suspend fun removeFromCart(product: ProductCart) = productCartDao.delete(product)
     suspend fun updateCartItem(product: ProductCart) = productCartDao.update(product)
-    suspend fun clearCart() = productCartDao.deleteAll()
+    suspend fun clearCartForUser(userEmail: String) = productCartDao.clearCartForUser(userEmail)
 
     // Favorite methods
     val favoriteItems: Flow<List<FavoriteProduct>> = favoriteProductDao.getAll()

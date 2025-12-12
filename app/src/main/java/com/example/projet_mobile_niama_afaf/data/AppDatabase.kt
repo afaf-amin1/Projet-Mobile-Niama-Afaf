@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [User::class, ProductCart::class, FavoriteProduct::class], version = 1, exportSchema = false)
+@Database(entities = [User::class, ProductCart::class, FavoriteProduct::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
@@ -22,7 +22,11 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_database"
-                ).build()
+                )
+                // When you change the schema, you must either increase the version number and provide a migration,
+                // or use fallbackToDestructiveMigration. For a development app, the latter is often simpler.
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

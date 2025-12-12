@@ -5,23 +5,48 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.projet_mobile_niama_afaf.data.AppRepository
 import com.example.projet_mobile_niama_afaf.data.ProductCart
+import com.example.projet_mobile_niama_afaf.data.SessionManager
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class CartViewModel(private val repository: AppRepository) : ViewModel() {
+class CartViewModel(private val repository: AppRepository, private val sessionManager: SessionManager) : ViewModel() {
 
-    val cartItems: StateFlow<List<ProductCart>> = repository.cartItems
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    private val _cartItems = MutableStateFlow<List<ProductCart>>(emptyList())
+    val cartItems: StateFlow<List<ProductCart>> = _cartItems.asStateFlow()
 
-    fun addToCart(product: ProductCart) {
-        viewModelScope.launch {
-            repository.addToCart(product)
+    init {
+        loadCartForCurrentUser()
+    }
+
+    private fun loadCartForCurrentUser() {
+        val userEmail = sessionManager.getUserEmail()
+        if (userEmail != null) {
+            viewModelScope.launch {
+                repository.getCartForUser(userEmail).collect { cart ->
+                    _cartItems.value = cart
+                }
+            }
+        }
+    }
+
+    fun addToCart(productId: String, quantity: Int) {
+        val userEmail = sessionManager.getUserEmail()
+        if (userEmail != null) {
+            viewModelScope.launch {
+                // Check if item already exists to update quantity
+                val existingItem = _cartItems.value.find { it.productId == productId }
+                if (existingItem != null) {
+                    val updatedItem = existingItem.copy(quantity = existingItem.quantity + quantity)
+                    repository.updateCartItem(updatedItem)
+                } else {
+                    repository.addToCart(ProductCart(userEmail = userEmail, productId = productId, quantity = quantity))
+                }
+            }
         }
     }
 
@@ -31,18 +56,21 @@ class CartViewModel(private val repository: AppRepository) : ViewModel() {
         }
     }
 
-    fun updateCartItem(product: ProductCart) {
-        viewModelScope.launch {
-            repository.updateCartItem(product)
+    fun clearCart() {
+        val userEmail = sessionManager.getUserEmail()
+        if (userEmail != null) {
+            viewModelScope.launch {
+                repository.clearCartForUser(userEmail)
+            }
         }
     }
 }
 
-class ViewModelFactory(private val repository: AppRepository) : ViewModelProvider.Factory {
+class ViewModelFactory(private val repository: AppRepository, private val sessionManager: SessionManager) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CartViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return CartViewModel(repository) as T
+            return CartViewModel(repository, sessionManager) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

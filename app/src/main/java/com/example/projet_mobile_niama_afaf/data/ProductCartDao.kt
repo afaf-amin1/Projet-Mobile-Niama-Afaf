@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProductCartDao {
+    // Inserts or updates an item. If the item already exists, it replaces it.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(product: ProductCart)
 
@@ -19,9 +20,11 @@ interface ProductCartDao {
     @Delete
     suspend fun delete(product: ProductCart)
 
-    @Query("SELECT * FROM product_cart")
-    fun getAll(): Flow<List<ProductCart>>
+    // Gets all cart items for a specific user.
+    @Query("SELECT * FROM product_cart WHERE userEmail = :userEmail")
+    fun getCartForUser(userEmail: String): Flow<List<ProductCart>>
 
-    @Query("DELETE FROM product_cart")
-    suspend fun deleteAll()
+    // Deletes all cart items for a specific user.
+    @Query("DELETE FROM product_cart WHERE userEmail = :userEmail")
+    suspend fun clearCartForUser(userEmail: String)
 }

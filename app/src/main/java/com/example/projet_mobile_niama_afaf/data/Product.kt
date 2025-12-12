@@ -1,11 +1,18 @@
 package com.example.projet_mobile_niama_afaf.data
 
+import com.google.gson.annotations.SerializedName
+
 data class Product(
-    val id: Int,
-    val title: String,
-    val price: Double,
-    val description: String,
-    val category: String,
-    val image: String,
-    val rating: Rating
+    @SerializedName("id") val id: Int,
+    @SerializedName("title") val title: String,
+    @SerializedName("price") val price: Double,
+    @SerializedName("description") val description: String,
+    @SerializedName("category") val category: String,
+    @SerializedName("image") val image: String,
+    @SerializedName("rating") val rating: Rating
+)
+
+data class Rating(
+    @SerializedName("rate") val rateValue: Double,
+    @SerializedName("count") val reviewCount: Int
 )

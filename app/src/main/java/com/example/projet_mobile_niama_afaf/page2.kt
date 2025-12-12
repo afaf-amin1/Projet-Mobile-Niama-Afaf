@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -27,7 +28,8 @@ val couleurfin = Color(0xFF4F2C1A)
 fun LoginScreen(onLogin: () -> Unit, onSignUp: () -> Unit, onBack: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
+    val context = LocalContext.current
+    val application = context.applicationContext as MyApplication
 
     val gradientBrush = Brush.verticalGradient(
         colors = listOf(couleurdebut, couleurfin)
@@ -75,7 +77,14 @@ fun LoginScreen(onLogin: () -> Unit, onSignUp: () -> Unit, onBack: () -> Unit) {
 
 
                 Button(
-                    onClick = onLogin,
+                    onClick = {
+                        // Save the user's email to the session
+                        if (email.isNotBlank()) {
+                            application.sessionManager.saveUserEmail(email)
+                        }
+                        // Proceed with the login navigation
+                        onLogin()
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = AccentButtonColor),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier

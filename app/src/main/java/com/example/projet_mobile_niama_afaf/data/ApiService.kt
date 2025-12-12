@@ -1,5 +1,6 @@
 package com.example.projet_mobile_niama_afaf.data
 
+import com.example.projet_mobile_niama_afaf.data.Product
 import retrofit2.http.GET
 import retrofit2.http.Path
 
